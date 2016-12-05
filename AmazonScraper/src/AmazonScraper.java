@@ -25,6 +25,8 @@ public class AmazonScraper {
 		int pageNumber = 1;
 
 		do {
+			long start = System.currentTimeMillis();
+
 			AmazonUtility.logNoNewLine("" + pageNumber + "... ");
 
 			String url = "https://www.amazon.it/gp/goldbox/ref=gbps_ftr_s-6_e3a8_page_" + pageNumber
@@ -32,6 +34,7 @@ public class AmazonScraper {
 					+ pageNumber + ",sortOrder:BY_SCORE,dealsPerPage:20";
 
 			WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED, SensitiveData.proxy1, SensitiveData.port1);
+			webClient.getOptions().setCssEnabled(false);
 			HtmlPage page = webClient.getPage(url);
 
 			Elements discountedItems = new Elements();
@@ -64,6 +67,9 @@ public class AmazonScraper {
 			}
 
 			pageNumber++;
+
+			long end = System.currentTimeMillis();
+			AmazonUtility.logNoNewLine("[" + (end - start) + " ms] ");
 
 		} while (pageNumber < (PAGES_TO_PARSE + 1));
 
