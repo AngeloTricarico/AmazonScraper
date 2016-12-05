@@ -16,7 +16,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 public class AmazonScraper {
 	public static void main(String[] args) throws IOException, InterruptedException {
 
-		final int PAGES_TO_PARSE = 100;
+		final int PAGES_TO_PARSE = 10;
 
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 

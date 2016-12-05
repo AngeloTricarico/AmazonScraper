@@ -53,7 +53,7 @@ public class AmazonUtility {
 
 	public static String getPrice(Element element) {
 
-		Elements price = element.select("span.a-size-base.a-color-base.inlineBlock.unitLineHeight.a-text-strike");
+		Elements price = element.select("span.a-size-medium.a-color-base.inlineBlock.unitLineHeight");
 		if (!price.isEmpty()) {
 			price.first();
 		}
