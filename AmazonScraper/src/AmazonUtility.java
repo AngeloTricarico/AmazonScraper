@@ -4,6 +4,9 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
+
 public class AmazonUtility {
 
 	public static String getUrl(Element element) {
@@ -27,8 +30,8 @@ public class AmazonUtility {
 
 		Elements mancanoRichiesto = element.select("span.a-size-mini.a-color-secondary.inlineBlock.unitLineHeight");
 
-		if (mancanoRichiesto.size() > 2) {
-			if (mancanoRichiesto != null) {
+		if (mancanoRichiesto != null) {
+			if (mancanoRichiesto.size() > 2) {
 				String percent = mancanoRichiesto.first().text();
 
 				Matcher matcher = Pattern.compile("\\w+: (\\d+)%").matcher(percent);
@@ -75,6 +78,16 @@ public class AmazonUtility {
 
 		return id;
 
+	}
+
+	public static WebClient createWebClient() {
+		WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED, SensitiveData.proxy1, SensitiveData.port1);
+		webClient.getOptions().setCssEnabled(false);
+		webClient.getOptions().setRedirectEnabled(false);
+		webClient.getOptions().setJavaScriptEnabled(true);
+		webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+		webClient.getOptions().setThrowExceptionOnScriptError(false);
+		return webClient;
 	}
 
 	public static void log(String log) {
