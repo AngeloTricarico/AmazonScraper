@@ -35,6 +35,11 @@ public class AmazonScraper {
 
 			WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED, SensitiveData.proxy1, SensitiveData.port1);
 			webClient.getOptions().setCssEnabled(false);
+			webClient.getOptions().setRedirectEnabled(false);
+			webClient.getOptions().setJavaScriptEnabled(true);
+			webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+			webClient.getOptions().setThrowExceptionOnScriptError(false);
+		    webClient.getOptions().setUseInsecureSSL(true);
 			HtmlPage page = webClient.getPage(url);
 
 			Elements discountedItems = new Elements();
