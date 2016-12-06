@@ -13,6 +13,9 @@ import org.jsoup.select.Elements;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
+// TODO 1. Salvare su file il valore migliore di deviazione standard da usare come riferimento per i run successivi, per dire se un'offerta è buona
+// TODO 2. Creare interfaccia grafica
+
 public class AmazonScraper {
 	public static void main(String[] args) throws IOException, InterruptedException {
 
