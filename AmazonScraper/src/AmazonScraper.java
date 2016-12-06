@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -17,8 +18,9 @@ public class AmazonScraper {
 
 		// The higher the longer it will take to execute
 		final int PAGES_TO_PARSE_SEARCH_DEAPNESS = 8;
-		final int PERCENT_CLAIMED_HISTORY_SIZE = 8; // Min 2
+		final int PERCENT_CLAIMED_HISTORY_SIZE = 8; // The bigger, the better
 		final int MINUTES_PAUSE_FOR_HISTORY_BUILDING = 1;
+		final int NUMBER_ITEMS_TO_SHOW = 6;
 
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 
@@ -45,13 +47,21 @@ public class AmazonScraper {
 				Elements discountedItems = new Elements();
 				do {
 
-					String pageAsXml = page.asXml();
+					String pageAsXml = null;
+					try {
 
-					Document doc = Jsoup.parse(pageAsXml);
+						pageAsXml = page.asXml();
 
-					Elements widgetContent = doc.select("div#widgetContent");
-					if (widgetContent != null && !widgetContent.isEmpty()) {
-						discountedItems = widgetContent.get(widgetContent.size() - 1).select("div.a-row.dealContainer.dealTile");
+						Document doc = Jsoup.parse(pageAsXml);
+
+						Elements widgetContent = doc.select("div#widgetContent");
+						if (widgetContent != null && !widgetContent.isEmpty()) {
+							discountedItems = widgetContent.get(widgetContent.size() - 1).select("div.a-row.dealContainer.dealTile");
+						}
+
+					} catch (Exception e) {
+						// Sometimes there are problems while parsing the page
+						AmazonUtility.log("ERROR: parsing page " + pageNumber + " - " + e);
 					}
 
 				} while (discountedItems.size() < 16);
@@ -99,19 +109,32 @@ public class AmazonScraper {
 
 			AmazonUtility.log(" - Waiting for " + MINUTES_PAUSE_FOR_HISTORY_BUILDING + " minutes before next fetch...\n");
 
+			if (i == 0) {
+				doSorterOrdList(amazonItemList, new AmazonItemsComparator());
+			} else if (i > 0) {
+				doSorterOrdList(amazonItemList, new AmazonItemsTrendComparator());
+			}
+			doPrintAmazonItemList(amazonItemList, NUMBER_ITEMS_TO_SHOW);
+
 			if (i < (PERCENT_CLAIMED_HISTORY_SIZE - 1)) {
 				Thread.sleep(MINUTES_PAUSE_FOR_HISTORY_BUILDING * 60 * 1000);
 			}
 
 		}
 
-		AmazonUtility.log("\n");
+	}
 
-		Collections.sort(amazonItemList, new AmazonItemsTrendComparator());
+	private static void doSorterOrdList(List<AmazonItem> amazonItemList, Comparator<? super AmazonItem> comparator) {
+
+		Collections.sort(amazonItemList, comparator);
 		Collections.reverse(amazonItemList);
 
-		for (AmazonItem ai : amazonItemList) {
-			AmazonUtility.log(ai.toString());
+	}
+
+	private static void doPrintAmazonItemList(List<AmazonItem> amazonItemList, int limit) {
+
+		for (int i = 0; i < amazonItemList.size() && i < limit; i++) {
+			AmazonUtility.log(amazonItemList.get(i).toString());
 		}
 
 	}

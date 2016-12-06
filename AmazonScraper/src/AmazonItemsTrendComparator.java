@@ -12,12 +12,20 @@ public class AmazonItemsTrendComparator implements Comparator<AmazonItem> {
 		int comparison = 0;
 		List<Integer> listA1 = a1.getPercentClaimedHistory();
 		List<Integer> listA2 = a2.getPercentClaimedHistory();
-		if (listA1.get(listA1.size() - 1) - listA1.get(0) > listA2.get(listA2.size() - 1) - listA2.get(0)) {
+		if (getScoreSeries(listA1) > getScoreSeries(listA2)) {
 			comparison = 1;
-		} else if (listA1.get(listA1.size() - 1) - listA1.get(0) > listA2.get(listA2.size() - 1) - listA2.get(0)) {
+		} else if (getScoreSeries(listA2) > getScoreSeries(listA1)) {
 			comparison = -1;
 		}
 		return comparison;
+	}
+
+	public double getScoreSeries(List<Integer> percentClaimedHistory) {
+		double[] percentClaimedHistoryArray = new double[percentClaimedHistory.size()];
+		for (int i = 0; i < percentClaimedHistory.size(); i++) {
+			percentClaimedHistoryArray[i] = percentClaimedHistory.get(i).doubleValue();
+		}
+		return new Statistics(percentClaimedHistoryArray).getStdDev();
 	}
 
 }
