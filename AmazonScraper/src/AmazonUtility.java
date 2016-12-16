@@ -1,3 +1,4 @@
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -96,6 +97,14 @@ public class AmazonUtility {
 
 	public static void logNoNewLine(String log) {
 		System.out.print(log);
+	}
+	
+	public static double getScoreSeries(List<Integer> percentClaimedHistory) {
+		double[] percentClaimedHistoryArray = new double[percentClaimedHistory.size()];
+		for (int i = 0; i < percentClaimedHistory.size(); i++) {
+			percentClaimedHistoryArray[i] = percentClaimedHistory.get(i).doubleValue();
+		}
+		return new Statistics(percentClaimedHistoryArray).getStdDev();
 	}
 
 }

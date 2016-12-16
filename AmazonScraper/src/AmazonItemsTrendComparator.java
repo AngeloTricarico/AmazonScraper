@@ -1,5 +1,4 @@
 import java.util.Comparator;
-import java.util.List;
 
 public class AmazonItemsTrendComparator implements Comparator<AmazonItem> {
 
@@ -10,22 +9,12 @@ public class AmazonItemsTrendComparator implements Comparator<AmazonItem> {
 
 	public int compare(AmazonItem a1, AmazonItem a2) {
 		int comparison = 0;
-		List<Integer> listA1 = a1.getPercentClaimedHistory();
-		List<Integer> listA2 = a2.getPercentClaimedHistory();
-		if (getScoreSeries(listA1) > getScoreSeries(listA2)) {
+		if (a1.getScore() > a2.getScore()) {
 			comparison = 1;
-		} else if (getScoreSeries(listA2) > getScoreSeries(listA1)) {
+		} else if (a2.getScore() > a1.getScore()) {
 			comparison = -1;
 		}
 		return comparison;
-	}
-
-	public double getScoreSeries(List<Integer> percentClaimedHistory) {
-		double[] percentClaimedHistoryArray = new double[percentClaimedHistory.size()];
-		for (int i = 0; i < percentClaimedHistory.size(); i++) {
-			percentClaimedHistoryArray[i] = percentClaimedHistory.get(i).doubleValue();
-		}
-		return new Statistics(percentClaimedHistoryArray).getStdDev();
 	}
 
 }

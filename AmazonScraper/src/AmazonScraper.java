@@ -21,7 +21,7 @@ public class AmazonScraper {
 
 		// The higher the longer it will take to execute
 		final int PAGES_TO_PARSE_SEARCH_DEAPNESS = 8;
-		final int PERCENT_CLAIMED_HISTORY_SIZE = 8; // The bigger, the better
+		final int PERCENT_CLAIMED_HISTORY_SIZE = 800; // The bigger, the better
 		final int MINUTES_PAUSE_FOR_HISTORY_BUILDING = 1;
 		final int NUMBER_ITEMS_TO_SHOW = 6;
 
@@ -91,6 +91,7 @@ public class AmazonScraper {
 					ai.getPercentClaimedHistory().add(ai.getPercentClaimed());
 					ai.setTitle(AmazonUtility.getTitle(item));
 					ai.setPrice(AmazonUtility.getPrice(item));
+					ai.setScore(AmazonUtility.getScoreSeries(ai.getPercentClaimedHistory()));
 
 					if (ai.getUrl() != null && ai.getId() != null && !ai.getId().equals("")) {
 						boolean found = false;

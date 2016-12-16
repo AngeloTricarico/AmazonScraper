@@ -8,6 +8,7 @@ public class AmazonItem {
 	String url;
 	String price;
 	int percentClaimed;
+	double score;
 	List<Integer> percentClaimedHistory = new ArrayList<Integer>();
 
 	public String getUrl() {
@@ -58,10 +59,18 @@ public class AmazonItem {
 		this.percentClaimedHistory = percentClaimedHistory;
 	}
 
+	public double getScore() {
+		return score;
+	}
+
+	public void setScore(double score) {
+		this.score = score;
+	}
+
 	@Override
 	public String toString() {
-		return "AmazonItem [id=" + id + ", percentClaimed=" + percentClaimed + ", percentClaimedHistory=" + percentClaimedHistory + ", price=" + price + ", title=" + title
-				+ ", url=" + url + "]";
+		return "AmazonItem [score=" + String.format("%.1f", score) + ", percentClaimed=" + percentClaimed + ", percentClaimedHistory=" + percentClaimedHistory + ", title=" + title
+				+ ", id=" + id + ", url=" + url + ", price=" + price + "]";
 	}
 
 	@Override
