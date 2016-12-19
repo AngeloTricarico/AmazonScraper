@@ -91,7 +91,7 @@ public class AmazonScraper {
 					ai.getPercentClaimedHistory().add(ai.getPercentClaimed());
 					ai.setTitle(AmazonUtility.getTitle(item));
 					ai.setPrice(AmazonUtility.getPrice(item));
-					ai.setScore(AmazonUtility.getScoreSeries(ai.getPercentClaimedHistory()));
+					ai.setScore(AmazonUtility.getScoreSeriesByMinMaxAndDiff(ai.getPercentClaimedHistory()));
 
 					if (ai.getUrl() != null && ai.getId() != null && !ai.getId().equals("")) {
 						boolean found = false;

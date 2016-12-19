@@ -1,3 +1,4 @@
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,13 +99,37 @@ public class AmazonUtility {
 	public static void logNoNewLine(String log) {
 		System.out.print(log);
 	}
-	
-	public static double getScoreSeries(List<Integer> percentClaimedHistory) {
+
+	public static double getScoreSeriesByStdDev(List<Integer> percentClaimedHistory) {
 		double[] percentClaimedHistoryArray = new double[percentClaimedHistory.size()];
 		for (int i = 0; i < percentClaimedHistory.size(); i++) {
 			percentClaimedHistoryArray[i] = percentClaimedHistory.get(i).doubleValue();
 		}
 		return new Statistics(percentClaimedHistoryArray).getStdDev();
+	}
+
+	public static double getScoreSeriesByMinMaxAndDiff(List<Integer> percentClaimedHistory) {
+		Integer first = percentClaimedHistory.get(0);
+		Integer current = percentClaimedHistory.get(percentClaimedHistory.size() - 1);
+		int diff = current.intValue() - first.intValue();
+		double score = diff * Math.pow(retrieveMinimumNotZeroDifference(percentClaimedHistory), -1);
+		return score;
+	}
+
+	private static int retrieveMinimumNotZeroDifference(List<Integer> percentClaimedHistory) {
+		// Let's assume the higher difference
+		int minimumDifference = 100;
+		for (int i = 0; i < percentClaimedHistory.size(); i++) {
+			Integer outerPercent = percentClaimedHistory.get(i);
+			for (int j = 0; j < percentClaimedHistory.size(); j++) {
+				Integer innerPercent = percentClaimedHistory.get(j);
+				int currentDifference = Math.abs(outerPercent - innerPercent);
+				if (currentDifference != 0 && currentDifference < minimumDifference) {
+					minimumDifference = currentDifference;
+				}
+			}
+		}
+		return minimumDifference;
 	}
 
 }
