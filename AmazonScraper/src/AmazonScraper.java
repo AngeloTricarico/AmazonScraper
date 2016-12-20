@@ -13,7 +13,7 @@ import org.jsoup.select.Elements;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
-// TODO 1. Salvare su file il valore migliore di deviazione standard da usare come riferimento per i run successivi, per dire se un'offerta è buona
+// TODO 1. Salvare su file il migliore highestScore da usare come riferimento per i run successivi, per dire se un'offerta è buona
 // TODO 2. Creare interfaccia grafica
 
 public class AmazonScraper {
@@ -24,6 +24,7 @@ public class AmazonScraper {
 		final int PERCENT_CLAIMED_HISTORY_SIZE = 800; // The bigger, the better
 		final int MINUTES_PAUSE_FOR_HISTORY_BUILDING = 1;
 		final int NUMBER_ITEMS_TO_SHOW = 6;
+		final int MAX_HISTORY_SIZE = 6;
 
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 
@@ -34,9 +35,7 @@ public class AmazonScraper {
 
 			// Page deepness loop
 			for (int pageNumber = 1; pageNumber < (PAGES_TO_PARSE_SEARCH_DEAPNESS + 1); pageNumber++) {
-
 				long start = System.currentTimeMillis();
-
 				AmazonUtility.logNoNewLine("" + pageNumber + "... ");
 
 				String url = "https://www.amazon.it/gp/goldbox/ref=gbps_ftr_s-6_e3a8_page_" + pageNumber
@@ -44,15 +43,12 @@ public class AmazonScraper {
 						+ pageNumber + ",sortOrder:BY_SCORE,dealsPerPage:20";
 
 				WebClient webClient = AmazonUtility.createWebClient();
-
 				HtmlPage page = webClient.getPage(url);
-
 				Elements discountedItems = new Elements();
 				do {
 
 					String pageAsXml = null;
 					try {
-
 						pageAsXml = page.asXml();
 
 						Document doc = Jsoup.parse(pageAsXml);
@@ -61,7 +57,6 @@ public class AmazonScraper {
 						if (widgetContent != null && !widgetContent.isEmpty()) {
 							discountedItems = widgetContent.get(widgetContent.size() - 1).select("div.a-row.dealContainer.dealTile");
 						}
-
 					} catch (Exception e) {
 						// Sometimes there are problems while parsing the page
 						AmazonUtility.log("ERROR: parsing page " + pageNumber + " - " + e);
@@ -89,9 +84,17 @@ public class AmazonScraper {
 
 					ai.setPercentClaimed(AmazonUtility.getPercentClaimed(item));
 					ai.getPercentClaimedHistory().add(ai.getPercentClaimed());
+					// Keeping history of fixed size in order to have an
+					// absolute score over time
+					if (ai.getPercentClaimedHistory().size() > MAX_HISTORY_SIZE - 1) {
+						ai.getPercentClaimedHistory().remove(0);
+					}
 					ai.setTitle(AmazonUtility.getTitle(item));
 					ai.setPrice(AmazonUtility.getPrice(item));
 					ai.setScore(AmazonUtility.getScoreSeriesByMinMaxAndDiff(ai.getPercentClaimedHistory()));
+					if (Double.compare(ai.getScore(), ai.getHighestScore()) > 0) {
+						ai.setHighestScore(ai.getScore());
+					}
 
 					if (ai.getUrl() != null && ai.getId() != null && !ai.getId().equals("")) {
 						boolean found = false;
@@ -108,10 +111,7 @@ public class AmazonScraper {
 
 				long end = System.currentTimeMillis();
 				AmazonUtility.logNoNewLine("[" + (end - start) + " ms] ");
-
 			}
-
-			AmazonUtility.log(" - Waiting for " + MINUTES_PAUSE_FOR_HISTORY_BUILDING + " minutes before next fetch...\n");
 
 			if (i == 0) {
 				doSorterOrdList(amazonItemList, new AmazonItemsComparator());
@@ -119,6 +119,8 @@ public class AmazonScraper {
 				doSorterOrdList(amazonItemList, new AmazonItemsTrendComparator());
 			}
 			doPrintAmazonItemList(amazonItemList, NUMBER_ITEMS_TO_SHOW);
+
+			AmazonUtility.log("Waiting for " + MINUTES_PAUSE_FOR_HISTORY_BUILDING + " minutes before next fetch...\n\n");
 
 			if (i < (PERCENT_CLAIMED_HISTORY_SIZE - 1)) {
 				Thread.sleep(MINUTES_PAUSE_FOR_HISTORY_BUILDING * 60 * 1000);

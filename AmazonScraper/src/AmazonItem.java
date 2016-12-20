@@ -3,13 +3,14 @@ import java.util.List;
 
 public class AmazonItem {
 
-	String id;
-	String title;
-	String url;
-	String price;
-	int percentClaimed;
-	double score;
-	List<Integer> percentClaimedHistory = new ArrayList<Integer>();
+	private double highestScore = -1.0;
+	private double score = 0.0;
+	private String price;
+	private List<Integer> percentClaimedHistory = new ArrayList<Integer>();
+	private String title;
+	private String url;
+	private String id;
+	private int percentClaimed;
 
 	public String getUrl() {
 		return url;
@@ -67,10 +68,18 @@ public class AmazonItem {
 		this.score = score;
 	}
 
+	public double getHighestScore() {
+		return highestScore;
+	}
+
+	public void setHighestScore(double highestScore) {
+		this.highestScore = highestScore;
+	}
+
 	@Override
 	public String toString() {
-		return "AmazonItem [score=" + String.format("%.1f", score) + ", percentClaimed=" + percentClaimed + ", percentClaimedHistory=" + percentClaimedHistory + ", title=" + title
-				+ ", id=" + id + ", url=" + url + ", price=" + price + "]";
+		return "AmazonItem [highestScore=" + String.format("%.1f", highestScore) + ", score=" + String.format("%.1f", score) + ", price=" + price + ", percentClaimedHistory="
+				+ percentClaimedHistory + ", title=" + title + ", url=" + url + ", id=" + id + ", percentClaimed=" + percentClaimed + "]";
 	}
 
 	@Override
