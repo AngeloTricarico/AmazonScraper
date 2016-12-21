@@ -131,18 +131,15 @@ public class AmazonScraper {
 	}
 
 	private static void doSorterOrdList(List<AmazonItem> amazonItemList, Comparator<? super AmazonItem> comparator) {
-
 		Collections.sort(amazonItemList, comparator);
 		Collections.reverse(amazonItemList);
-
 	}
 
 	private static void doPrintAmazonItemList(List<AmazonItem> amazonItemList, int limit) {
-
+		AmazonUtility.log("\n");
 		for (int i = 0; i < amazonItemList.size() && i < limit; i++) {
 			AmazonUtility.log(amazonItemList.get(i).toString());
 		}
-
 	}
 
 }

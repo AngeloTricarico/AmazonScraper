@@ -13,6 +13,14 @@ public class AmazonItemsTrendComparator implements Comparator<AmazonItem> {
 			comparison = 1;
 		} else if (a2.getHighestScore() > a1.getHighestScore()) {
 			comparison = -1;
+		} else if (a2.getHighestScore() == a1.getHighestScore()) {
+			if (a1.getScore() > a2.getScore()) {
+				comparison = 1;
+			} else if (a2.getScore() > a1.getScore()) {
+				comparison = -1;
+			} else {
+				comparison = 0;
+			}
 		}
 		return comparison;
 	}
