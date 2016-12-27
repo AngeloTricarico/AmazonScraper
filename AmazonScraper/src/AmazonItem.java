@@ -78,7 +78,7 @@ public class AmazonItem {
 
 	@Override
 	public String toString() {
-		return "AmazonItem [highestScore=" + String.format("%.1f", highestScore) + ", score=" + String.format("%.1f", score) + ", price=" + price + ", percentClaimedHistory="
+		return "[highestScore=" + String.format("%.1f", highestScore) + ", score=" + String.format("%.1f", score) + ", price=" + price + ", percentClaimedHistory="
 				+ percentClaimedHistory + ", title=" + title + ", url=" + url + ", id=" + id + ", percentClaimed=" + percentClaimed + "]";
 	}
 

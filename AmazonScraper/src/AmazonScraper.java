@@ -41,9 +41,17 @@ public class AmazonScraper {
 				String url = "https://www.amazon.it/gp/goldbox/ref=gbps_ftr_s-6_e3a8_page_" + pageNumber
 						+ "?ie=UTF8&gb_f_LD=dealStates:AVAILABLE%252CWAITLIST%252CWAITLISTFULL%252CUPCOMING,dealTypes:LIGHTNING_DEAL,sortOrder:BY_SCORE&pf_rd_m=A11IL2PNWYJU7H&gb_f_GB-SUPPLE=page:"
 						+ pageNumber + ",sortOrder:BY_SCORE,dealsPerPage:20";
-
-				WebClient webClient = AmazonUtility.createWebClient();
-				HtmlPage page = webClient.getPage(url);
+				
+				WebClient webClient = null;
+				HtmlPage page = null;
+				try{
+					webClient = AmazonUtility.createWebClient();
+					page = webClient.getPage(url);
+				}
+				catch(Exception e){
+					AmazonUtility.log(e.toString());
+					break;
+				}
 				Elements discountedItems = new Elements();
 				do {
 
