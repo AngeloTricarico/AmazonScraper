@@ -1,5 +1,8 @@
+package com.angelotricarico.test;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.angelotricarico.utils.AmazonUtility;
 
 public class HistoryTester {
 

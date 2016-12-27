@@ -1,4 +1,8 @@
+package com.angelotricarico.comparators;
+
 import java.util.Comparator;
+
+import com.angelotricarico.bean.AmazonItem;
 
 public class AmazonItemsTrendComparator implements Comparator<AmazonItem> {
 

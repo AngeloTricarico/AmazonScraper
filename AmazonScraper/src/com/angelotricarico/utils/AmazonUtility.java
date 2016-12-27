@@ -1,4 +1,4 @@
-import java.util.Collections;
+package com.angelotricarico.utils;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.angelotricarico.SensitiveData;
+import com.angelotricarico.bean.AmazonItem;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 

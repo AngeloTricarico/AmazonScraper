@@ -1,3 +1,4 @@
+package com.angelotricarico;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,6 +13,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
+import com.angelotricarico.bean.AmazonItem;
+import com.angelotricarico.comparators.AmazonItemsComparator;
 
 public class AmazonScraperJson {
 

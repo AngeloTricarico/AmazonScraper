@@ -1,3 +1,4 @@
+package com.angelotricarico.utils;
 import java.util.Arrays;
 
 public class Statistics {

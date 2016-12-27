@@ -1,3 +1,4 @@
+package com.angelotricarico;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,6 +11,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.angelotricarico.bean.AmazonItem;
+import com.angelotricarico.comparators.AmazonItemsComparator;
+import com.angelotricarico.comparators.AmazonItemsTrendComparator;
+import com.angelotricarico.utils.AmazonUtility;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
