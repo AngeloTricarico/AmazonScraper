@@ -1,4 +1,5 @@
 package com.angelotricarico;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +17,7 @@ import org.jsoup.select.Elements;
 
 import com.angelotricarico.bean.AmazonItem;
 import com.angelotricarico.comparators.AmazonItemsComparator;
+import com.angelotricarico.utils.AmazonUtility;
 
 public class AmazonScraperJson {
 
@@ -58,7 +60,7 @@ public class AmazonScraperJson {
 			}
 
 		} catch (JSONException e) {
-			e.printStackTrace();
+			AmazonUtility.log("ERROR: " + e);
 		}
 
 		Collections.sort(amazonItemList, new AmazonItemsComparator());
@@ -90,7 +92,7 @@ public class AmazonScraperJson {
 				prezzo = prezzoMin + "-" + prezzoMax;
 			}
 		} catch (JSONException e) {
-			e.printStackTrace();
+			AmazonUtility.log("ERROR: " + e);
 		}
 		return prezzo;
 
@@ -102,7 +104,7 @@ public class AmazonScraperJson {
 		try {
 			title = (String) dealDetails.get("title");
 		} catch (JSONException e) {
-			e.printStackTrace();
+			AmazonUtility.log("ERROR: " + e);
 		}
 		return title;
 
@@ -113,7 +115,7 @@ public class AmazonScraperJson {
 		try {
 			url = (String) dealDetails.get("egressUrl");
 		} catch (JSONException e) {
-			e.printStackTrace();
+			AmazonUtility.log("ERROR: " + e);
 		}
 		return url;
 	}
@@ -123,7 +125,7 @@ public class AmazonScraperJson {
 		try {
 			url = (String) dealDetails.get("dealID");
 		} catch (JSONException e) {
-			e.printStackTrace();
+			AmazonUtility.log("ERROR: " + e);
 		}
 		return url;
 	}
@@ -136,7 +138,7 @@ public class AmazonScraperJson {
 			percentClaimed = (int) jo.get("percentClaimed");
 
 		} catch (JSONException e) {
-			e.printStackTrace();
+			AmazonUtility.log("ERROR: " + e);
 		}
 		return percentClaimed;
 
@@ -158,12 +160,13 @@ public class AmazonScraperJson {
 				try {
 					jsonObject = new JSONObject(json);
 				} catch (JSONException e) {
-					e.printStackTrace();
+					AmazonUtility.log("ERROR: " + e);
 				}
 
 			}
 		}
 		return jsonObject;
+
 	}
 
 }

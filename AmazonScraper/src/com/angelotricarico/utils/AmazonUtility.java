@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.angelotricarico.SensitiveData;
 import com.angelotricarico.bean.AmazonItem;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -85,7 +84,7 @@ public class AmazonUtility {
 	}
 
 	public static WebClient createWebClient() {
-		WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED, SensitiveData.proxy1, SensitiveData.port1);
+		WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED);
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setRedirectEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(true);
