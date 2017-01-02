@@ -2,17 +2,21 @@ package com.angelotricarico.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -28,11 +32,11 @@ import com.angelotricarico.utils.Browser;
 public class AmazonMainFrame extends JFrame {
 
 	private JPanel contentPane;
-	private JTable table;
-	private JProgressBar percentProgressBar;
-	private JProgressBar indeterminateProgressBar;
+	private JTable tResultsTable;
+	private JProgressBar pbPercent;
 	private JPanel progressPanel;
 	private JPanel tablePanel;
+	private JLabel lbTimerLabel;
 
 	/**
 	 * Launch the application.
@@ -80,20 +84,18 @@ public class AmazonMainFrame extends JFrame {
 
 		progressPanel = new JPanel();
 		contentPane.add(progressPanel);
-		progressPanel.setLayout(new GridLayout(2, 1, 0, 0));
+		progressPanel.setLayout(new BorderLayout(5, 0));
+		progressPanel.setMaximumSize(new Dimension((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(), 16));
 
-		percentProgressBar = new JProgressBar();
-		progressPanel.add(percentProgressBar);
-		percentProgressBar.setForeground(new Color(255, 165, 0));
-		percentProgressBar.setStringPainted(true);
-		percentProgressBar.setValue(100);
+		pbPercent = new JProgressBar();
+		pbPercent.setForeground(new Color(255, 165, 0));
+		pbPercent.setStringPainted(true);
+		pbPercent.setValue(100);
+		progressPanel.add(pbPercent, BorderLayout.CENTER);
 
-		indeterminateProgressBar = new JProgressBar();
-		indeterminateProgressBar.setValue(1);
-		indeterminateProgressBar.setToolTipText("Loading Items...");
-		indeterminateProgressBar.setForeground(new Color(0, 0, 102));
-		progressPanel.add(indeterminateProgressBar);
-		indeterminateProgressBar.setIndeterminate(true);
+		lbTimerLabel = new JLabel("00");
+		lbTimerLabel.setLabelFor(pbPercent);
+		progressPanel.add(lbTimerLabel, BorderLayout.EAST);
 
 		tablePanel = new JPanel();
 		contentPane.add(tablePanel);
@@ -102,14 +104,14 @@ public class AmazonMainFrame extends JFrame {
 		JScrollPane scrollPane = new JScrollPane();
 		tablePanel.add(scrollPane);
 
-		table = new JTable(model);
-		table.setAutoCreateRowSorter(true);
+		tResultsTable = new JTable(model);
+		tResultsTable.setAutoCreateRowSorter(true);
 
-		table.addMouseListener(new MouseAdapter() {
+		tResultsTable.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent me) {
 				if (me.getClickCount() == 2) {
-					String itemUrl = (String) model.getValueAt(table.rowAtPoint(me.getPoint()), 4);
+					String itemUrl = (String) model.getValueAt(tResultsTable.rowAtPoint(me.getPoint()), 4);
 					try {
 						Browser.openWebpage(new URL(itemUrl));
 					} catch (MalformedURLException e) {
@@ -119,7 +121,7 @@ public class AmazonMainFrame extends JFrame {
 			}
 		});
 
-		scrollPane.setViewportView(table);
+		scrollPane.setViewportView(tResultsTable);
 
 		AmazonScraper as = new AmazonScraper();
 
@@ -137,7 +139,7 @@ public class AmazonMainFrame extends JFrame {
 
 				List<AmazonItem> amazonItemList = new ArrayList<AmazonItem>();
 				while (true) {
-					indeterminateProgressBar.setVisible(false);
+					getLbTimerLabel().setVisible(false);
 
 					// Fetching item list
 					as.doFillAmazonItemList(amazonItemList);
@@ -155,7 +157,8 @@ public class AmazonMainFrame extends JFrame {
 						model.addRow(amazonItemRow);
 					}
 
-					indeterminateProgressBar.setVisible(true);
+					getLbTimerLabel().setVisible(true);
+					startCountdownTimer();
 
 					// Waiting some time
 					try {
@@ -184,12 +187,25 @@ public class AmazonMainFrame extends JFrame {
 		}).start();
 	}
 
+	private void startCountdownTimer() {
+		final Timer timer = new Timer();
+		timer.scheduleAtFixedRate(new TimerTask() {
+			int countdownValue = AmazonScraper.MINUTES_PAUSE_FOR_HISTORY_BUILDING * 60;
+
+			public void run() {
+				getLbTimerLabel().setText("" + countdownValue);
+				System.out.println(countdownValue--);
+				if (countdownValue < 0)
+					timer.cancel();
+			}
+		}, 0, 1000);
+	}
+
 	public JProgressBar getProgressBar() {
-		return percentProgressBar;
+		return pbPercent;
 	}
 
-	public JProgressBar getIndeterminateProgressBar() {
-		return indeterminateProgressBar;
+	public JLabel getLbTimerLabel() {
+		return lbTimerLabel;
 	}
-
 }
