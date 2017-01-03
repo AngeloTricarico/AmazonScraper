@@ -19,39 +19,32 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 // TODO 1. Salvare su file il migliore highestScore da usare come riferimento per i run successivi, per dire se un'offerta è buona
 
 public class AmazonScraper {
-	
-	public AmazonScraper() {
+
+	// Constructors
+	public AmazonScraper(String nation) {
+		this.nation = nation;
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 	}
 
+	// Constants
 	public final static int PAGES_TO_PARSE_SEARCH_DEAPNESS = 8;
 	public final static int PERCENT_CLAIMED_HISTORY_SIZE = 800;
 	public final static int MINUTES_PAUSE_FOR_HISTORY_BUILDING = 1;
 	public final static int NUMBER_ITEMS_TO_SHOW = 6;
 	public final static int MAX_HISTORY_SIZE = 6;
 
-	int percent = 1;
-
-	private static void doSorterOrdList(List<AmazonItem> amazonItemList, Comparator<? super AmazonItem> comparator) {
-		Collections.sort(amazonItemList, comparator);
-		Collections.reverse(amazonItemList);
-	}
-
-	@SuppressWarnings("unused")
-	private static void doPrintAmazonItemList(List<AmazonItem> amazonItemList, int limit) {
-		AmazonUtility.log("\n");
-		for (int i = 0; i < amazonItemList.size() && i < limit; i++) {
-			AmazonUtility.log(amazonItemList.get(i).toString());
-		}
-	}
+	// Variables
+	private int percent = 1;
+	private String nation;
+	private int pageNumber;
 
 	public void doFillAmazonItemList(List<AmazonItem> amazonItemList) {
 		// Page deepness loop
-		for (int pageNumber = 1; pageNumber < (PAGES_TO_PARSE_SEARCH_DEAPNESS + 1); pageNumber++) {
+		for (pageNumber = 1; pageNumber < (PAGES_TO_PARSE_SEARCH_DEAPNESS + 1); pageNumber++) {
 			long start = System.currentTimeMillis();
 			AmazonUtility.logNoNewLine("" + pageNumber + "... ");
 
-			String url = "https://www.amazon.it/gp/goldbox/ref=gbps_ftr_s-6_e3a8_page_" + pageNumber
+			String url = "https://www.amazon." + nation + "/gp/goldbox/ref=gbps_ftr_s-6_e3a8_page_" + pageNumber
 					+ "?ie=UTF8&gb_f_LD=dealStates:AVAILABLE%252CWAITLIST%252CWAITLISTFULL%252CUPCOMING,dealTypes:LIGHTNING_DEAL,sortOrder:BY_SCORE&pf_rd_m=A11IL2PNWYJU7H&gb_f_GB-SUPPLE=page:"
 					+ pageNumber + ",sortOrder:BY_SCORE,dealsPerPage:20";
 
@@ -64,9 +57,10 @@ public class AmazonScraper {
 				AmazonUtility.log(e.toString());
 				break;
 			}
-			
+
 			Elements discountedItems = new Elements();
-			
+
+			// Loop to make sure htmlunit has parsed the whole page
 			do {
 				String pageAsXml = null;
 				try {
@@ -76,8 +70,7 @@ public class AmazonScraper {
 
 					Elements widgetContent = doc.select("div#widgetContent.a-row");
 					if (widgetContent != null && !widgetContent.isEmpty()) {
-						discountedItems = widgetContent.get(widgetContent.size() - 1)
-								.select("div.a-row.dealContainer.dealTile");
+						discountedItems = widgetContent.get(widgetContent.size() - 1).select("div.a-row.dealContainer.dealTile");
 					}
 				} catch (Exception e) {
 					// Sometimes there are problems while parsing the page
@@ -135,9 +128,23 @@ public class AmazonScraper {
 
 		doSorterOrdList(amazonItemList, new AmazonItemsTrendComparator());
 
+		doPrintAmazonItemList(amazonItemList, 5);
+
 		AmazonUtility.log("Waiting for " + MINUTES_PAUSE_FOR_HISTORY_BUILDING + " minutes before next fetch...\n\n");
 
 		setPercent(0);
+	}
+
+	private static void doSorterOrdList(List<AmazonItem> amazonItemList, Comparator<? super AmazonItem> comparator) {
+		Collections.sort(amazonItemList, comparator);
+		Collections.reverse(amazonItemList);
+	}
+
+	private static void doPrintAmazonItemList(List<AmazonItem> amazonItemList, int limit) {
+		AmazonUtility.log("\n");
+		for (int i = 0; i < amazonItemList.size() && i < limit; i++) {
+			AmazonUtility.log(amazonItemList.get(i).toString());
+		}
 	}
 
 	public int getPercent() {

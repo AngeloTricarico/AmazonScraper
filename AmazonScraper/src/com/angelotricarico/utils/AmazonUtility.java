@@ -38,7 +38,7 @@ public class AmazonUtility {
 			if (mancanoRichiesto.size() > 2) {
 				String percent = mancanoRichiesto.first().text();
 
-				Matcher matcher = Pattern.compile("\\w+: (\\d+)%").matcher(percent);
+				Matcher matcher = Pattern.compile("\\w*(\\d+)%\\w*").matcher(percent);
 
 				if (matcher.find()) {
 					percentuale = Integer.valueOf(matcher.group(1));

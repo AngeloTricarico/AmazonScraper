@@ -123,7 +123,7 @@ public class AmazonMainFrame extends JFrame {
 
 		scrollPane.setViewportView(tResultsTable);
 
-		AmazonScraper as = new AmazonScraper();
+		AmazonScraper as = new AmazonScraper("it");
 
 		startLoadingItemsThread(as, model);
 
