@@ -3,6 +3,7 @@ package com.angelotricarico;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -18,6 +19,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 // TODO 1. Salvare su file il migliore highestScore da usare come riferimento per i run successivi, per dire se un'offerta è buona
 
 public class AmazonScraper {
+	
+	public AmazonScraper() {
+		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
+	}
 
 	public final static int PAGES_TO_PARSE_SEARCH_DEAPNESS = 8;
 	public final static int PERCENT_CLAIMED_HISTORY_SIZE = 800;
@@ -26,8 +31,6 @@ public class AmazonScraper {
 	public final static int MAX_HISTORY_SIZE = 6;
 
 	int percent = 1;
-
-	// java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 
 	private static void doSorterOrdList(List<AmazonItem> amazonItemList, Comparator<? super AmazonItem> comparator) {
 		Collections.sort(amazonItemList, comparator);
@@ -71,7 +74,7 @@ public class AmazonScraper {
 
 					Document doc = Jsoup.parse(pageAsXml);
 
-					Elements widgetContent = doc.select("div#widgetContent");
+					Elements widgetContent = doc.select("div#widgetContent.a-row");
 					if (widgetContent != null && !widgetContent.isEmpty()) {
 						discountedItems = widgetContent.get(widgetContent.size() - 1)
 								.select("div.a-row.dealContainer.dealTile");

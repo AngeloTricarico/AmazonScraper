@@ -140,6 +140,7 @@ public class AmazonMainFrame extends JFrame {
 				List<AmazonItem> amazonItemList = new ArrayList<AmazonItem>();
 				while (true) {
 					getLbTimerLabel().setVisible(false);
+					getProgressBar().setIndeterminate(false);
 
 					// Fetching item list
 					as.doFillAmazonItemList(amazonItemList);
@@ -158,6 +159,7 @@ public class AmazonMainFrame extends JFrame {
 					}
 
 					getLbTimerLabel().setVisible(true);
+					getProgressBar().setIndeterminate(true);
 					startCountdownTimer();
 
 					// Waiting some time
@@ -193,8 +195,7 @@ public class AmazonMainFrame extends JFrame {
 			int countdownValue = AmazonScraper.MINUTES_PAUSE_FOR_HISTORY_BUILDING * 60;
 
 			public void run() {
-				getLbTimerLabel().setText("" + countdownValue);
-				System.out.println(countdownValue--);
+				getLbTimerLabel().setText("" + countdownValue--);
 				if (countdownValue < 0)
 					timer.cancel();
 			}
