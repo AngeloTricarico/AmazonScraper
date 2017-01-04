@@ -20,23 +20,24 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 
 public class AmazonScraper {
 
-	// Constructors
-	public AmazonScraper(String nation) {
-		this.nation = nation;
-		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
-	}
-
 	// Constants
 	public final static int PAGES_TO_PARSE_SEARCH_DEAPNESS = 8;
 	public final static int PERCENT_CLAIMED_HISTORY_SIZE = 800;
 	public final static int MINUTES_PAUSE_FOR_HISTORY_BUILDING = 1;
 	public final static int NUMBER_ITEMS_TO_SHOW = 6;
 	public final static int MAX_HISTORY_SIZE = 6;
+	public final static String[] NATION_ARRAY = { "com", "it", "es", "fr", "de" };
 
 	// Variables
 	private int percent = 1;
 	private String nation;
 	private int pageNumber;
+
+	// Constructors
+	public AmazonScraper(String nation) {
+		this.nation = nation;
+		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
+	}
 
 	public void doFillAmazonItemList(List<AmazonItem> amazonItemList) {
 		// Page deepness loop
@@ -153,6 +154,14 @@ public class AmazonScraper {
 
 	public void setPercent(int percent) {
 		this.percent = percent;
+	}
+
+	public String getNation() {
+		return nation;
+	}
+
+	public void setNation(String nation) {
+		this.nation = nation;
 	}
 
 }

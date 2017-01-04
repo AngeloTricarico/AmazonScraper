@@ -5,20 +5,28 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -28,8 +36,11 @@ import com.angelotricarico.bean.AmazonItem;
 import com.angelotricarico.constants.Constants;
 import com.angelotricarico.utils.AmazonUtility;
 import com.angelotricarico.utils.Browser;
+import com.angelotricarico.utils.SettingsPreference;
 
 public class AmazonMainFrame extends JFrame {
+
+	private static final long serialVersionUID = -2536333424450897613L;
 
 	private JPanel contentPane;
 	private JTable tResultsTable;
@@ -37,6 +48,13 @@ public class AmazonMainFrame extends JFrame {
 	private JPanel progressPanel;
 	private JPanel tablePanel;
 	private JLabel lbTimerLabel;
+	private JMenuBar menuBar;
+	private JMenu mLanguage;
+	private JPanel menuBarPanel;
+	private JRadioButtonMenuItem rdbtnLanguage;
+
+	AmazonScraper as;
+	SettingsPreference sp;
 
 	/**
 	 * Launch the application.
@@ -60,9 +78,18 @@ public class AmazonMainFrame extends JFrame {
 	 */
 	public AmazonMainFrame() {
 
-		setTitle(Constants.APP_TITLE);
+		sp = new SettingsPreference();
+		as = new AmazonScraper(sp.loadNation());
+
+		setTitle(Constants.APP_TITLE + " - Loading from www.amazon." + sp.loadNation());
+
 		// Table model
 		final DefaultTableModel model = new DefaultTableModel() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -5742396885506787986L;
+
 			@Override
 			public boolean isCellEditable(int row, int column) {
 				// All cells are not editable
@@ -81,6 +108,28 @@ public class AmazonMainFrame extends JFrame {
 		contentPane.setBorder(null);
 		setContentPane(contentPane);
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+
+		menuBarPanel = new JPanel();
+		contentPane.add(menuBarPanel);
+		menuBarPanel.setLayout(new BorderLayout(0, 0));
+		menuBarPanel.setMaximumSize(new Dimension((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(), 16));
+
+		menuBar = new JMenuBar();
+		menuBarPanel.add(menuBar);
+
+		mLanguage = new JMenu("Select domain");
+		menuBar.add(mLanguage);
+
+		final ButtonGroup buttonGroup = new ButtonGroup();
+		for (String nation : AmazonScraper.NATION_ARRAY) {
+			rdbtnLanguage = new JRadioButtonMenuItem(nation);
+			addListenerToRadioButtonItem(rdbtnLanguage, buttonGroup);
+			if (nation.equals(sp.loadNation())) {
+				rdbtnLanguage.setSelected(true);
+			}
+			buttonGroup.add(rdbtnLanguage);
+			mLanguage.add(rdbtnLanguage);
+		}
 
 		progressPanel = new JPanel();
 		contentPane.add(progressPanel);
@@ -123,8 +172,6 @@ public class AmazonMainFrame extends JFrame {
 
 		scrollPane.setViewportView(tResultsTable);
 
-		AmazonScraper as = new AmazonScraper("it");
-
 		startLoadingItemsThread(as, model);
 
 		startLoadingItemsProgressBarThread(as);
@@ -153,8 +200,7 @@ public class AmazonMainFrame extends JFrame {
 
 					// Filling table again
 					for (AmazonItem amazonItem : amazonItemList) {
-						Object[] amazonItemRow = { amazonItem.getHighestScore(), amazonItem.getScore(),
-								amazonItem.getPrice(), amazonItem.getTitle(), amazonItem.getUrl() };
+						Object[] amazonItemRow = { amazonItem.getHighestScore(), amazonItem.getScore(), amazonItem.getPrice(), amazonItem.getTitle(), amazonItem.getUrl() };
 						model.addRow(amazonItemRow);
 					}
 
@@ -200,6 +246,31 @@ public class AmazonMainFrame extends JFrame {
 					timer.cancel();
 			}
 		}, 0, 1000);
+	}
+
+	public String getSelectedButtonText(ButtonGroup buttonGroup) {
+		for (Enumeration<AbstractButton> buttons = buttonGroup.getElements(); buttons.hasMoreElements();) {
+			AbstractButton button = buttons.nextElement();
+
+			if (button.isSelected()) {
+				return button.getText();
+			}
+		}
+
+		return null;
+	}
+
+	public void addListenerToRadioButtonItem(JRadioButtonMenuItem rbmi, final ButtonGroup buttonGroup) {
+		rbmi.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				String nation = getSelectedButtonText(buttonGroup);
+				if (nation != null) {
+					as.setNation(nation);
+					sp.saveNation(nation);
+					setTitle(Constants.APP_TITLE + " - Loading from www.amazon." + sp.loadNation());
+				}
+			}
+		});
 	}
 
 	public JProgressBar getProgressBar() {
