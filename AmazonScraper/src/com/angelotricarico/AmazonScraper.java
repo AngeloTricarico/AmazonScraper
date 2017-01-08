@@ -49,6 +49,8 @@ public class AmazonScraper {
 					+ "?ie=UTF8&gb_f_LD=dealStates:AVAILABLE%252CWAITLIST%252CWAITLISTFULL%252CUPCOMING,dealTypes:LIGHTNING_DEAL,sortOrder:BY_SCORE&pf_rd_m=A11IL2PNWYJU7H&gb_f_GB-SUPPLE=page:"
 					+ pageNumber + ",sortOrder:BY_SCORE,dealsPerPage:20";
 
+			AmazonUtility.log(url);
+			
 			WebClient webClient = null;
 			HtmlPage page = null;
 			try {
@@ -70,8 +72,9 @@ public class AmazonScraper {
 					Document doc = Jsoup.parse(pageAsXml);
 
 					Elements widgetContent = doc.select("div#widgetContent.a-row");
+					
 					if (widgetContent != null && !widgetContent.isEmpty()) {
-						discountedItems = widgetContent.get(widgetContent.size() - 1).select("div.a-row.dealContainer.dealTile");
+						discountedItems = widgetContent.get(returnIdOfCorrectWidgetContainer(widgetContent)).select("div.a-row.dealContainer.dealTile");
 					}
 				} catch (Exception e) {
 					// Sometimes there are problems while parsing the page
@@ -134,6 +137,21 @@ public class AmazonScraper {
 		AmazonUtility.log("Waiting for " + MINUTES_PAUSE_FOR_HISTORY_BUILDING + " minutes before next fetch...\n\n");
 
 		setPercent(0);
+	}
+
+	private int returnIdOfCorrectWidgetContainer(Elements widgetContent) {
+		// I might want to return the size of the biggest widget container in the future
+		int widgetContentId = 0;
+		// Let's grab the one with most offers (which is the one main one)
+		int i = 0;
+		for (Element element : widgetContent) {
+			Elements offers = element.select("div.a-row.dealContainer.dealTile");
+			if (offers.size() > widgetContentId) {
+				widgetContentId = i;
+			}
+			i++;
+		}
+		return widgetContentId;
 	}
 
 	private static void doSorterOrdList(List<AmazonItem> amazonItemList, Comparator<? super AmazonItem> comparator) {
