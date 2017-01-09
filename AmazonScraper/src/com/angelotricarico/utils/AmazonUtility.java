@@ -1,4 +1,5 @@
 package com.angelotricarico.utils;
+import java.awt.Color;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -134,4 +135,10 @@ public class AmazonUtility {
 		return minimumDifference;
 	}
 
+	public static Color getColorForScore(double score, double highestScore) {
+		// highestScore:128=score:x
+		int green = (int) (128*score/highestScore);
+		return new Color(0, green, 0);
+	}
+	
 }

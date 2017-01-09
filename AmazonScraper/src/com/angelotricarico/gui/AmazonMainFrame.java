@@ -2,6 +2,7 @@ package com.angelotricarico.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
@@ -29,6 +30,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import com.angelotricarico.AmazonScraper;
@@ -178,19 +180,32 @@ public class AmazonMainFrame extends JFrame {
 
 	}
 
+	private void doColorTableRows(JTable table, final AmazonScraper as) {
+		table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+				double currentItemHighestScore = (double) table.getModel().getValueAt(row, 0);
+				double globalHighestScore = as.getHighestScoreAmongAllProducts();
+					setBackground(AmazonUtility.getColorForScore(currentItemHighestScore, globalHighestScore));
+					setForeground(Color.WHITE);
+				return this;
+			}
+		});
+	}
+
 	private void startLoadingItemsThread(final AmazonScraper as, final DefaultTableModel model) {
 		// Loading items
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
 
-				List<AmazonItem> amazonItemList = new ArrayList<AmazonItem>();
 				while (true) {
 					getLbTimerLabel().setVisible(false);
 					getProgressBar().setIndeterminate(false);
 
 					// Fetching item list
-					as.doFillAmazonItemList(amazonItemList);
+					List<AmazonItem> amazonItemList = as.getAmazonItemList();
 
 					// Removing all current items
 					int rowCount = model.getRowCount();
@@ -203,6 +218,8 @@ public class AmazonMainFrame extends JFrame {
 						Object[] amazonItemRow = { amazonItem.getHighestScore(), amazonItem.getScore(), amazonItem.getPrice(), amazonItem.getTitle(), amazonItem.getUrl() };
 						model.addRow(amazonItemRow);
 					}
+
+					doColorTableRows(tResultsTable, as);
 
 					getLbTimerLabel().setVisible(true);
 					getProgressBar().setIndeterminate(true);

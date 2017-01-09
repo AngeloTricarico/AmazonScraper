@@ -1,5 +1,6 @@
 package com.angelotricarico;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -32,6 +33,7 @@ public class AmazonScraper {
 	private int percent = 1;
 	private String nation;
 	private int pageNumber;
+	private List<AmazonItem> amazonItemList;
 
 	// Constructors
 	public AmazonScraper(String nation) {
@@ -39,7 +41,10 @@ public class AmazonScraper {
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 	}
 
-	public void doFillAmazonItemList(List<AmazonItem> amazonItemList) {
+	public List<AmazonItem> getAmazonItemList() {
+		if (amazonItemList == null) {
+			amazonItemList = new ArrayList<AmazonItem>();
+		}
 		// Page deepness loop
 		for (pageNumber = 1; pageNumber < (PAGES_TO_PARSE_SEARCH_DEAPNESS + 1); pageNumber++) {
 			long start = System.currentTimeMillis();
@@ -137,6 +142,8 @@ public class AmazonScraper {
 		AmazonUtility.log("Waiting for " + MINUTES_PAUSE_FOR_HISTORY_BUILDING + " minutes before next fetch...\n\n");
 
 		setPercent(0);
+		
+		return amazonItemList;
 	}
 
 	private int returnIdOfCorrectWidgetContainer(Elements widgetContent) {
@@ -152,6 +159,17 @@ public class AmazonScraper {
 			i++;
 		}
 		return widgetContentId;
+	}
+	
+
+	public double getHighestScoreAmongAllProducts() {
+		double highestScoreAmongAllProducts = 0;
+		for (AmazonItem ai : amazonItemList) {
+			if (ai.getHighestScore() > highestScoreAmongAllProducts) {
+				highestScoreAmongAllProducts = ai.getHighestScore();
+			}
+		}
+		return highestScoreAmongAllProducts;
 	}
 
 	private static void doSorterOrdList(List<AmazonItem> amazonItemList, Comparator<? super AmazonItem> comparator) {
