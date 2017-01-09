@@ -188,7 +188,7 @@ public class AmazonMainFrame extends JFrame {
 				double currentItemHighestScore = (double) table.getModel().getValueAt(row, 0);
 				double globalHighestScore = as.getHighestScoreAmongAllProducts();
 					setBackground(AmazonUtility.getColorForScore(currentItemHighestScore, globalHighestScore));
-					setForeground(Color.WHITE);
+					setForeground(Color.BLACK);
 				return this;
 			}
 		});

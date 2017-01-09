@@ -15,78 +15,57 @@ import com.gargoylesoftware.htmlunit.WebClient;
 public class AmazonUtility {
 
 	public static String getUrl(Element element) {
-
 		String url = null;
-
 		Elements links = element.select("a[href]");
-
 		if (links.size() == 3) {
 			if (links != null) {
 				url = links.get(1).attr("abs:href");
 			}
 		}
-
 		return url;
 	}
 
 	public static int getPercentClaimed(Element element) {
-
 		int percentuale = 0;
-
 		Elements mancanoRichiesto = element.select("span.a-size-mini.a-color-secondary.inlineBlock.unitLineHeight");
-
 		if (mancanoRichiesto != null) {
 			if (mancanoRichiesto.size() > 2) {
 				String percent = mancanoRichiesto.first().text();
-
 				Matcher matcher = Pattern.compile("\\w*(\\d+)%\\w*").matcher(percent);
-
 				if (matcher.find()) {
 					percentuale = Integer.valueOf(matcher.group(1));
 				}
-
 			}
 		}
-
 		return percentuale;
-
 	}
 
 	public static String getTitle(Element element) {
-
 		Element dealTitle = element.select("#dealTitle").first();
-
 		return dealTitle == null ? null : dealTitle.text();
 	}
 
 	public static String getPrice(Element element) {
-
 		Elements price = element.select("span.a-size-medium.a-color-base.inlineBlock.unitLineHeight");
 		if (!price.isEmpty()) {
 			price.first();
 		}
-
 		return price.text();
-
 	}
 
 	public static String getId(AmazonItem ai) {
-
 		String id = "";
-
 		if (ai.getUrl() != null) {
 			Matcher m = Pattern.compile("https:\\/{2}(?:.*\\/){3}(\\w+)\\/.*").matcher(ai.getUrl());
 			if (m.find()) {
 				id = m.group(1);
 			}
 		}
-
 		return id;
-
 	}
 
 	public static WebClient createWebClient() {
-		WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED, SensitiveData.proxy1, SensitiveData.port1);
+		WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED);
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setRedirectEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(true);
@@ -137,8 +116,8 @@ public class AmazonUtility {
 
 	public static Color getColorForScore(double score, double highestScore) {
 		// highestScore:128=score:x
-		int green = (int) (128*score/highestScore);
-		return new Color(0, green, 0);
+		int green = (int) (128 * score / highestScore);
+		return new Color(255 - green, 255, 255 - green);
 	}
 	
 }
