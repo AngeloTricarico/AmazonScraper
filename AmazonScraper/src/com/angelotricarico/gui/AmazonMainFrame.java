@@ -225,8 +225,7 @@ public class AmazonMainFrame extends JFrame {
 					startCountdownTimer();
 
 					AmazonUtility.sendEmailIfNewExcellentProductWasFound(as);
-					SettingsPreference.saveHighestScoreEver(0);// TODO Only to
-																// test email
+					// SettingsPreference.saveHighestScoreEver(0); // Only to test email
 				}
 
 			}
