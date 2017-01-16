@@ -1,4 +1,4 @@
-package com.angelotricarico;
+package com.angelotricarico.scraper;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +41,7 @@ public class AmazonScraper {
 		java.util.logging.Logger.getLogger("com.gargoylesoftware").setLevel(Level.OFF);
 	}
 
-	public List<AmazonItem> getAmazonItemList() {
+	public List<AmazonItem> downloadAmazonItemList() {
 		if (amazonItemList == null) {
 			amazonItemList = new ArrayList<AmazonItem>();
 		}
@@ -55,7 +55,7 @@ public class AmazonScraper {
 					+ pageNumber + ",sortOrder:BY_SCORE,dealsPerPage:20";
 
 			AmazonUtility.log(url);
-			
+
 			WebClient webClient = null;
 			HtmlPage page = null;
 			try {
@@ -77,7 +77,7 @@ public class AmazonScraper {
 					Document doc = Jsoup.parse(pageAsXml);
 
 					Elements widgetContent = doc.select("div#widgetContent.a-row");
-					
+
 					if (widgetContent != null && !widgetContent.isEmpty()) {
 						discountedItems = widgetContent.get(returnIdOfCorrectWidgetContainer(widgetContent)).select("div.a-row.dealContainer.dealTile");
 					}
@@ -142,12 +142,13 @@ public class AmazonScraper {
 		AmazonUtility.log("Waiting for " + MINUTES_PAUSE_FOR_HISTORY_BUILDING + " minutes before next fetch...\n\n");
 
 		setPercent(0);
-		
+
 		return amazonItemList;
 	}
 
 	private int returnIdOfCorrectWidgetContainer(Elements widgetContent) {
-		// I might want to return the size of the biggest widget container in the future
+		// I might want to return the size of the biggest widget container in
+		// the future
 		int widgetContentId = 0;
 		// Let's grab the one with most offers (which is the one main one)
 		int i = 0;
@@ -160,7 +161,6 @@ public class AmazonScraper {
 		}
 		return widgetContentId;
 	}
-	
 
 	public double getHighestScoreAmongAllProducts() {
 		double highestScoreAmongAllProducts = 0;
@@ -182,6 +182,14 @@ public class AmazonScraper {
 		for (int i = 0; i < amazonItemList.size() && i < limit; i++) {
 			AmazonUtility.log(amazonItemList.get(i).toString());
 		}
+	}
+
+	public List<AmazonItem> getAmazonItemList() {
+		return amazonItemList;
+	}
+
+	public void setAmazonItemList(List<AmazonItem> amazonItemList) {
+		this.amazonItemList = amazonItemList;
 	}
 
 	public int getPercent() {

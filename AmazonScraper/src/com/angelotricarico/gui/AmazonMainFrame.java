@@ -12,11 +12,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
@@ -33,9 +34,9 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import com.angelotricarico.AmazonScraper;
 import com.angelotricarico.bean.AmazonItem;
 import com.angelotricarico.constants.Constants;
+import com.angelotricarico.scraper.AmazonScraper;
 import com.angelotricarico.utils.AmazonUtility;
 import com.angelotricarico.utils.Browser;
 import com.angelotricarico.utils.SettingsPreference;
@@ -56,7 +57,6 @@ public class AmazonMainFrame extends JFrame {
 	private JRadioButtonMenuItem rdbtnLanguage;
 
 	AmazonScraper as;
-	SettingsPreference sp;
 
 	/**
 	 * Launch the application.
@@ -80,10 +80,9 @@ public class AmazonMainFrame extends JFrame {
 	 */
 	public AmazonMainFrame() {
 
-		sp = new SettingsPreference();
-		as = new AmazonScraper(sp.loadNation());
+		as = new AmazonScraper(SettingsPreference.loadNation());
 
-		setTitle(Constants.APP_TITLE + " - Loading from www.amazon." + sp.loadNation());
+		setTitle(Constants.APP_TITLE + " - Loading from www.amazon." + SettingsPreference.loadNation());
 
 		// Table model
 		final DefaultTableModel model = new DefaultTableModel() {
@@ -98,6 +97,7 @@ public class AmazonMainFrame extends JFrame {
 				return false;
 			}
 		};
+
 		model.addColumn(Constants.TABLE_HEADER_HIGHEST_SCORE);
 		model.addColumn(Constants.TABLE_HEADER_CURRENT_SCORE);
 		model.addColumn(Constants.TABLE_HEADER_PRICE);
@@ -126,7 +126,7 @@ public class AmazonMainFrame extends JFrame {
 		for (String nation : AmazonScraper.NATION_ARRAY) {
 			rdbtnLanguage = new JRadioButtonMenuItem(nation);
 			addListenerToRadioButtonItem(rdbtnLanguage, buttonGroup);
-			if (nation.equals(sp.loadNation())) {
+			if (nation.equals(SettingsPreference.loadNation())) {
 				rdbtnLanguage.setSelected(true);
 			}
 			buttonGroup.add(rdbtnLanguage);
@@ -156,7 +156,7 @@ public class AmazonMainFrame extends JFrame {
 		tablePanel.add(scrollPane);
 
 		tResultsTable = new JTable(model);
-		tResultsTable.setAutoCreateRowSorter(true);
+		// tResultsTable.setAutoCreateRowSorter(true);
 
 		tResultsTable.addMouseListener(new MouseAdapter() {
 			@Override
@@ -187,8 +187,8 @@ public class AmazonMainFrame extends JFrame {
 				super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
 				double currentItemHighestScore = (double) table.getModel().getValueAt(row, 0);
 				double globalHighestScore = as.getHighestScoreAmongAllProducts();
-					setBackground(AmazonUtility.getColorForScore(currentItemHighestScore, globalHighestScore));
-					setForeground(Color.BLACK);
+				setBackground(AmazonUtility.getColorForScore(currentItemHighestScore, globalHighestScore));
+				setForeground(Color.BLACK);
 				return this;
 			}
 		});
@@ -196,8 +196,8 @@ public class AmazonMainFrame extends JFrame {
 
 	private void startLoadingItemsThread(final AmazonScraper as, final DefaultTableModel model) {
 		// Loading items
-		new Thread(new Runnable() {
-			@Override
+		Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(new Runnable() {
+
 			public void run() {
 
 				while (true) {
@@ -205,11 +205,10 @@ public class AmazonMainFrame extends JFrame {
 					getProgressBar().setIndeterminate(false);
 
 					// Fetching item list
-					List<AmazonItem> amazonItemList = as.getAmazonItemList();
+					List<AmazonItem> amazonItemList = as.downloadAmazonItemList();
 
 					// Removing all current items
-					int rowCount = model.getRowCount();
-					for (int i = rowCount - 1; i >= 0; i--) {
+					for (int i = model.getRowCount() - 1; i >= 0; i--) {
 						model.removeRow(i);
 					}
 
@@ -225,31 +224,25 @@ public class AmazonMainFrame extends JFrame {
 					getProgressBar().setIndeterminate(true);
 					startCountdownTimer();
 
-					// Waiting some time
-					try {
-						Thread.sleep(AmazonScraper.MINUTES_PAUSE_FOR_HISTORY_BUILDING * 60 * 1000);
-					} catch (InterruptedException e) {
-						AmazonUtility.log("ERROR: " + e);
-					}
+					AmazonUtility.sendEmailIfNewExcellentProductWasFound(as);
+					SettingsPreference.saveHighestScoreEver(0);// TODO Only to
+																// test email
 				}
+
 			}
-		}).start();
+
+		}, 0, AmazonScraper.MINUTES_PAUSE_FOR_HISTORY_BUILDING, TimeUnit.MINUTES);
+
 	}
 
 	private void startLoadingItemsProgressBarThread(final AmazonScraper as) {
-		new Thread(new Runnable() {
-			@Override
+		Executors.newSingleThreadScheduledExecutor().scheduleWithFixedDelay(new Runnable() {
+
 			public void run() {
-				while (true) {
-					getProgressBar().setValue(as.getPercent());
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						AmazonUtility.log("ERROR: " + e);
-					}
-				}
+				getProgressBar().setValue(as.getPercent());
 			}
-		}).start();
+
+		}, 0, 1, TimeUnit.SECONDS);
 	}
 
 	private void startCountdownTimer() {
@@ -283,8 +276,8 @@ public class AmazonMainFrame extends JFrame {
 				String nation = getSelectedButtonText(buttonGroup);
 				if (nation != null) {
 					as.setNation(nation);
-					sp.saveNation(nation);
-					setTitle(Constants.APP_TITLE + " - Loading from www.amazon." + sp.loadNation());
+					SettingsPreference.saveNation(nation);
+					setTitle(Constants.APP_TITLE + " - Loading from www.amazon." + SettingsPreference.loadNation());
 				}
 			}
 		});

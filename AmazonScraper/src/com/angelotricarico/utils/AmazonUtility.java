@@ -1,4 +1,5 @@
 package com.angelotricarico.utils;
+
 import java.awt.Color;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -9,6 +10,8 @@ import org.jsoup.select.Elements;
 
 import com.angelotricarico.SensitiveData;
 import com.angelotricarico.bean.AmazonItem;
+import com.angelotricarico.constants.Constants;
+import com.angelotricarico.scraper.AmazonScraper;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 
@@ -65,7 +68,7 @@ public class AmazonUtility {
 	}
 
 	public static WebClient createWebClient() {
-		WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED);
+		WebClient webClient = new WebClient(BrowserVersion.BEST_SUPPORTED, SensitiveData.proxy1, SensitiveData.port1);
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setRedirectEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(true);
@@ -119,5 +122,30 @@ public class AmazonUtility {
 		int green = (int) (128 * score / highestScore);
 		return new Color(255 - green, 255, 255 - green);
 	}
-	
+
+	public static void sendEmailIfNewExcellentProductWasFound(AmazonScraper as) {
+		double globalHighestScore = as.getHighestScoreAmongAllProducts();
+		if (globalHighestScore >= SettingsPreference.loadHighestScoreEver()) {
+			SettingsPreference.saveHighestScoreEver(globalHighestScore);
+			if (as.getAmazonItemList().size() == AmazonScraper.MAX_HISTORY_SIZE && as.getAmazonItemList().get(0) != null) {
+				SendMail.sendMail(Constants.MAIL_TITLE, AmazonUtility.formatAmazonItemForEmail(as.getAmazonItemList().get(0)));
+			}
+		}
+	}
+
+	public static String formatAmazonItemForEmail(AmazonItem ai) {
+		String message = boldString("Highest Score = ") + String.format("%.1f", ai.getHighestScore()) + brNewLine() + boldString("\nPrice = ") + ai.getPrice() + brNewLine()
+				+ boldString("\nTitle = ") + ai.getTitle() + brNewLine() + boldString("\nURL = ") + ai.getUrl() + brNewLine() + boldString("\nPercent Claimed = ")
+				+ ai.getPercentClaimed();
+		return message;
+	}
+
+	public static String boldString(String string) {
+		return "<b>" + string + "</b>";
+	}
+
+	public static String brNewLine() {
+		return "<br>";
+	}
+
 }

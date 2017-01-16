@@ -1,4 +1,4 @@
-package com.angelotricarico;
+package com.angelotricarico.scraper;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,6 +15,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.angelotricarico.SensitiveData;
 import com.angelotricarico.bean.AmazonItem;
 import com.angelotricarico.comparators.AmazonItemsComparator;
 import com.angelotricarico.utils.AmazonUtility;
