@@ -200,34 +200,31 @@ public class AmazonMainFrame extends JFrame {
 
 			public void run() {
 
-				while (true) {
-					getLbTimerLabel().setVisible(false);
-					getProgressBar().setIndeterminate(false);
+				getLbTimerLabel().setVisible(false);
+				getProgressBar().setIndeterminate(false);
 
-					// Fetching item list
-					List<AmazonItem> amazonItemList = as.downloadAmazonItemList();
+				// Fetching item list
+				List<AmazonItem> amazonItemList = as.downloadAmazonItemList();
 
-					// Removing all current items
-					for (int i = model.getRowCount() - 1; i >= 0; i--) {
-						model.removeRow(i);
-					}
-
-					// Filling table again
-					for (AmazonItem amazonItem : amazonItemList) {
-						Object[] amazonItemRow = { amazonItem.getHighestScore(), amazonItem.getScore(), amazonItem.getPrice(), amazonItem.getTitle(), amazonItem.getUrl() };
-						model.addRow(amazonItemRow);
-					}
-
-					doColorTableRows(tResultsTable, as);
-
-					getLbTimerLabel().setVisible(true);
-					getProgressBar().setIndeterminate(true);
-					startCountdownTimer();
-
-					AmazonUtility.sendEmailIfNewExcellentProductWasFound(as);
-					// SettingsPreference.saveHighestScoreEver(0); // Only to test email
+				// Removing all current items
+				for (int i = model.getRowCount() - 1; i >= 0; i--) {
+					model.removeRow(i);
 				}
 
+				// Filling table again
+				for (AmazonItem amazonItem : amazonItemList) {
+					Object[] amazonItemRow = { amazonItem.getHighestScore(), amazonItem.getScore(), amazonItem.getPrice(), amazonItem.getTitle(), amazonItem.getUrl() };
+					model.addRow(amazonItemRow);
+				}
+
+				doColorTableRows(tResultsTable, as);
+
+				getLbTimerLabel().setVisible(true);
+				getProgressBar().setIndeterminate(true);
+				startCountdownTimer();
+
+				AmazonUtility.sendEmailIfNewExcellentProductWasFound(as);
+				
 			}
 
 		}, 0, AmazonScraper.MINUTES_PAUSE_FOR_HISTORY_BUILDING, TimeUnit.MINUTES);
