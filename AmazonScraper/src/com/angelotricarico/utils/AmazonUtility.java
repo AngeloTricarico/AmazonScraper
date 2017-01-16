@@ -125,11 +125,9 @@ public class AmazonUtility {
 
 	public static void sendEmailIfNewExcellentProductWasFound(AmazonScraper as) {
 		double globalHighestScore = as.getHighestScoreAmongAllProducts();
-		if (globalHighestScore >= SettingsPreference.loadHighestScoreEver()) {
+		if (globalHighestScore > SettingsPreference.loadHighestScoreEver()) {
 			SettingsPreference.saveHighestScoreEver(globalHighestScore);
-			if (as.getAmazonItemList().size() == AmazonScraper.MAX_HISTORY_SIZE && as.getAmazonItemList().get(0) != null) {
-				SendMail.sendMail(Constants.MAIL_TITLE, AmazonUtility.formatAmazonItemForEmail(as.getAmazonItemList().get(0)));
-			}
+			SendMail.sendMail(Constants.MAIL_TITLE, AmazonUtility.formatAmazonItemForEmail(as.getAmazonItemList().get(0)));
 		}
 	}
 
