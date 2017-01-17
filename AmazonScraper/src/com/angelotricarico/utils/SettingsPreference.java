@@ -6,7 +6,6 @@ import java.util.prefs.Preferences;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONTokener;
 
 import com.angelotricarico.bean.AmazonItem;
 import com.angelotricarico.constants.Constants;
