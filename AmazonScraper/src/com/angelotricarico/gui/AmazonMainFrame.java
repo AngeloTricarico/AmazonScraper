@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit;
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -53,6 +54,7 @@ public class AmazonMainFrame extends JFrame {
 	private JLabel lbTimerLabel;
 	private JMenuBar menuBar;
 	private JMenu mLanguage;
+	private JMenu mEmailAlert;
 	private JPanel menuBarPanel;
 	private JRadioButtonMenuItem rdbtnLanguage;
 
@@ -86,9 +88,6 @@ public class AmazonMainFrame extends JFrame {
 
 		// Table model
 		final DefaultTableModel model = new DefaultTableModel() {
-			/**
-			 * 
-			 */
 			private static final long serialVersionUID = -5742396885506787986L;
 
 			@Override
@@ -115,6 +114,7 @@ public class AmazonMainFrame extends JFrame {
 		contentPane.add(menuBarPanel);
 		menuBarPanel.setLayout(new BorderLayout(0, 0));
 		menuBarPanel.setMaximumSize(new Dimension((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(), 16));
+		menuBarPanel.setMinimumSize(new Dimension(200, 16));
 
 		menuBar = new JMenuBar();
 		menuBarPanel.add(menuBar);
@@ -128,15 +128,29 @@ public class AmazonMainFrame extends JFrame {
 			addListenerToRadioButtonItem(rdbtnLanguage, buttonGroup);
 			if (nation.equals(SettingsPreference.loadNation())) {
 				rdbtnLanguage.setSelected(true);
+				// Every time we switch domain we reset highest score
+				SettingsPreference.saveHighestScoreEver(0.0);
 			}
 			buttonGroup.add(rdbtnLanguage);
 			mLanguage.add(rdbtnLanguage);
 		}
 
+		mEmailAlert = new JMenu("Email alert");
+		mEmailAlert.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				EmailAlertDialog dialog = new EmailAlertDialog();
+				dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+				dialog.setVisible(true);
+			}
+		});
+		menuBar.add(mEmailAlert);
+
 		progressPanel = new JPanel();
 		contentPane.add(progressPanel);
 		progressPanel.setLayout(new BorderLayout(5, 0));
 		progressPanel.setMaximumSize(new Dimension((int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(), 16));
+		menuBarPanel.setMinimumSize(new Dimension(200, 16));
 
 		pbPercent = new JProgressBar();
 		pbPercent.setForeground(new Color(255, 165, 0));
@@ -224,7 +238,7 @@ public class AmazonMainFrame extends JFrame {
 				startCountdownTimer();
 
 				AmazonUtility.sendEmailIfNewExcellentProductWasFound(as);
-				
+
 			}
 
 		}, 0, AmazonScraper.MINUTES_PAUSE_FOR_HISTORY_BUILDING, TimeUnit.MINUTES);

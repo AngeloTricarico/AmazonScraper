@@ -125,10 +125,33 @@ public class AmazonUtility {
 
 	public static void sendEmailIfNewExcellentProductWasFound(AmazonScraper as) {
 		double globalHighestScore = as.getHighestScoreAmongAllProducts();
-		if (globalHighestScore > SettingsPreference.loadHighestScoreEver()) {
+		// First of the list has the higher score
+		AmazonItem itemToSend = as.getAmazonItemList().get(0);
+		// Check if the score is high enough
+		if (globalHighestScore >= SettingsPreference.loadHighestScoreEver() && globalHighestScore > 1 && !hasProductAlreadyBeenSent(itemToSend)
+				&& (!Constants.DEFAULT_MAIL.equals(SettingsPreference.loadEmailAddressAlert()))) {
 			SettingsPreference.saveHighestScoreEver(globalHighestScore);
-			SendMail.sendMail(Constants.MAIL_TITLE, AmazonUtility.formatAmazonItemForEmail(as.getAmazonItemList().get(0)));
+			SendMail.sendMail(Constants.MAIL_TITLE, AmazonUtility.formatAmazonItemForEmail(itemToSend));
+			saveNewAlreadySentProduct(itemToSend);
 		}
+	}
+
+	public static void saveNewAlreadySentProduct(AmazonItem ai) {
+		List<String> listOfSentProducts = SettingsPreference.loadListOfSentProducts();
+		listOfSentProducts.add(ai.getId());
+		SettingsPreference.saveListOfSentProducts(listOfSentProducts);
+	}
+
+	public static boolean hasProductAlreadyBeenSent(AmazonItem ai) {
+		boolean alreadySent = false;
+		List<String> listOfSentProducts = SettingsPreference.loadListOfSentProducts();
+		for (String sentAmazonItemId : listOfSentProducts) {
+			if (ai.getId().equals(sentAmazonItemId)) {
+				alreadySent = true;
+				break;
+			}
+		}
+		return alreadySent;
 	}
 
 	public static String formatAmazonItemForEmail(AmazonItem ai) {
