@@ -128,7 +128,7 @@ public class AmazonUtility {
 		// First of the list has the higher score
 		AmazonItem itemToSend = as.getAmazonItemList().get(0);
 		// Check if the score is high enough
-		if (globalHighestScore >= SettingsPreference.loadHighestScoreEver() && globalHighestScore > 1 && !hasProductAlreadyBeenSent(itemToSend)
+		if (globalHighestScore >= (SettingsPreference.loadHighestScoreEver() - 1) && globalHighestScore > 1 && !hasProductAlreadyBeenSent(itemToSend)
 				&& (!Constants.DEFAULT_MAIL.equals(SettingsPreference.loadEmailAddressAlert()))) {
 			SettingsPreference.saveHighestScoreEver(globalHighestScore);
 			SendMail.sendMail(Constants.MAIL_TITLE, AmazonUtility.formatAmazonItemForEmail(itemToSend));
