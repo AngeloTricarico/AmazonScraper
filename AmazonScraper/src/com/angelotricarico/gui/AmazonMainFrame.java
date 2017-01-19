@@ -128,8 +128,6 @@ public class AmazonMainFrame extends JFrame {
 			addListenerToRadioButtonItem(rdbtnLanguage, buttonGroup);
 			if (nation.equals(SettingsPreference.loadNation())) {
 				rdbtnLanguage.setSelected(true);
-				// Every time we switch domain we reset highest score
-				SettingsPreference.saveHighestScoreEver(0.0);
 			}
 			buttonGroup.add(rdbtnLanguage);
 			mLanguage.add(rdbtnLanguage);
@@ -288,6 +286,8 @@ public class AmazonMainFrame extends JFrame {
 					as.setNation(nation);
 					SettingsPreference.saveNation(nation);
 					setTitle(Constants.APP_TITLE + " - Loading from www.amazon." + SettingsPreference.loadNation());
+					// Every time we switch domain we reset highest score
+					SettingsPreference.saveHighestScoreEver(0.0);
 				}
 			}
 		});
